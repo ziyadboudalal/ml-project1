@@ -219,3 +219,6 @@ __marimo__/
 
 # Local dataset
 /dataset/
+
+# macOS metadata
+.DS_Store
