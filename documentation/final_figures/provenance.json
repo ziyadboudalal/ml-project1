@@ -1,0 +1,8 @@
+{
+  "results_sha256": "5b68d9136c8c02040aa69b8a9a2c92ccaa576fa487fedd12a1c129852ef22ee3",
+  "generator_sha256": "7658a1b15647ffff61f4bfcdd4fd121980876a8ee7a9794a361768d99e9f3796",
+  "validation_signature": "3e47303cad358ebe15f93a31727e1862ccef3886068eb37c4dbbc55474406437",
+  "reported_model": "final_pipeline.CONFIG",
+  "model_sha256": "45a62a02ee2285ea5cef1c5b994c977d23cc2b6b42b309c3469693a39879e536",
+  "oof_predictions_sha256": "14078c4f2ecf4b79d0c3e0eafc3f343d48d26d2c7b17b8014f94b85bb46da04e"
+}

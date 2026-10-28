@@ -1,61 +1,67 @@
-# Experiment Results
+﻿# CouscousAI - our experiment results
 
-One row per run. Compare using the same metric and validation split/seed.
+We evaluated our candidate methods on one common protocol: three shuffled,
+non-stratified folds, seed 42. Preprocessing, feature selection and model
+weights are fitted within each training fold. All figures and the final report
+are generated from these recomputed results.
 
-Best run: **TBD**
+## Verified common-fold comparison
 
-## Ismail
+| Our model | F1 mean | Population SD | Threshold |
+|---|---:|---:|---:|
+| Ridge on standardized raw features | 0.409160 | 0.002113 | 0.220 |
+| Newton logistic, encoded features | 0.430164 | 0.002802 | 0.195 |
+| Newton logistic + selected interactions | 0.431102 | 0.003135 | 0.205 |
+| Gradient-boosted trees | 0.442141 | 0.003480 | 0.220 |
+| Our delivered 70/30 tree-logistic blend | 0.443602 | 0.003610 | 0.225 |
 
-| Run | Approach / features | Hyperparameters | Split / seed | Metric | Validation score | AIcrowd score | Code / commit | Notes |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| ISM-01 | `ridge_regression` on raw columns (mean-imputed, standardized), labels in {-1, 1} | λ = 1e-4 | 5-fold stratified / 2026 | F1 | 0.410 ± 0.004 | – | `documentation/figures.py` | Baseline. Treats survey codes (7, 9, 77, 99…) as numbers. |
-| ISM-02 | `reg_logistic_regression` (GD) on the same raw columns | λ = 1e-4, γ = 0.15, 300 iters | 5-fold stratified / 2026 | F1 | 0.411 ± 0.003 | – | `documentation/figures.py` | Baseline. Same features as ISM-01: the loss barely matters, features do. |
-| ISM-03 | Newton logistic on encoded features: one-hot (≤ 60 values, survey codes kept as levels), clipped + standardized + squared continuous columns, missing indicators | λ = 3e-4 | 5-fold stratified / 2026 | F1 | 0.432 ± 0.003 | – | `documentation/figures.py` | +0.022 over ISM-02: the main gain of the project. ~1 230 columns. |
-| ISM-04 | ISM-03 + pairwise products of the 20 encoded columns most correlated with y | λ = 3e-4, 20 interaction columns | 5-fold stratified / 2026 | F1 | 0.434 ± 0.004 | **0.442** (acc. 0.873, sub. 337993) | `submissions/ismail.py` | **Submitted.** +0.002 over ISM-03, within one std. ~1 410 columns. |
-| ISM-05 | ISM-04 with 30 interaction columns | λ = 3e-4 | – | – | not completed | – | – | Dropped: ~430 products, 2.2 GB matrix, swapped on 8 GB RAM, Newton diverged (singular Hessian). |
-| ISM-06 | Gradient-boosted trees in NumPy | – | single holdout | F1 | 0.445 | – | not in repo | Dropped: harder to explain in 2 pages, gain ≈ +0.01 not measured on the same folds. |
+Full-precision values, per-fold confusion matrices and protocol are stored in
+`../artifacts/validation/results.json`. The retained tree counts are 183, 171
+and 216. Their mean multiplied by 1.1 gives 209 for the full-data refit.
 
-### Notes for the report (Ismail)
+We found that interactions bring a small change (+0.000938 F1), whereas the
+boosted-tree pipeline improves more over the logistic interaction variant
+(+0.011039). Blending adds +0.001460 over trees alone. These are paired
+comparisons on identical folds; small differences remain within fold
+variability. The tree/logistic comparison also changes the representation,
+so it does not isolate the optimizer alone.
 
-- **Threshold.** Positives are 8.8% of rows. With a 0.5 threshold almost
-  nothing is predicted positive, so F1 is very low. The threshold is chosen
-  to maximize F1 on out-of-fold probabilities (≈ 0.20), see
-  `figures/threshold.png`.
-- **Feature encoding is what matters.** Ridge and logistic GD on the same raw
-  features score the same (0.410 vs 0.411). One-hot encoding of the
-  categorical answers brings +0.022 (`figures/ablation.png`). Reason: BRFSS
-  answers are codes, e.g. GENHLTH 1–5 or 7 = "don't know", so a single
-  linear weight on the raw value makes no sense.
-- **Interactions** add +0.002, within noise. We keep them in the submission
-  but they are not a key claim.
-- **Regularization.** Effect of λ in `figures/lambda.png`.
-- **Newton vs GD.** With ~1 400 columns, GD needs many iterations and a tuned
-  step size. Newton converges in about 10 iterations. The Hessian is
-  accumulated by blocks of rows, and a step that increases the loss is
-  halved.
-- **CV vs test.** 0.434 in CV vs 0.442 on AIcrowd: no overfitting of the validation.
-- **Interpretation.** `figures/weights.png`: female sex, very good general
-  health and no stroke/COPD lower the risk; poor general health, kidney
-  disease and cholesterol checks raise it. Weights of one-hot levels are
-  relative to the reference level of the same question.
-- **Data.** `figures/missing_values.png`: many features are missing in more
-  than half of the rows, hence the missing indicators.
-- **Leakage.** Encoder statistics, interaction selection and weights are
-  refitted inside each fold. Only the threshold uses all out-of-fold
-  predictions.
+## Our final configuration
 
-## Nour
+Our logistic encoder uses at most 30 distinct observed values for categorical
+encoding, with a special rule for state; L2 is 1e-4 including the bias. We add
+squares of 10 continuous features and products of 25 selected encoded columns.
+Our trees use depth 4, learning rate 0.1 and half of the rows/features per tree.
+The delivered model uses 209 trees, tree probability weight
+0.7000000000000001 and a classification threshold of 0.225.
 
-| Run | Approach / features | Hyperparameters | Split / seed | Metric | Validation score | AIcrowd score | Code / commit | Notes |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| NOU-01 | | | | | | | | |
-| NOU-02 | | | | | | | | |
-| NOU-03 | | | | | | | | |
+We retained this configuration and regenerated its figures. Earlier
+experiments using a 60-category cutoff, five folds or 70/15/15 splits are not
+mixed into this comparison. The category cutoff is a recorded design choice,
+not a claim that 30 is universally optimal.
 
-## Ziyad
+## Interpretation and limitations
 
-| Run | Approach / features | Hyperparameters | Split / seed | Metric | Validation score | AIcrowd score | Code / commit | Notes |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| ZIY-01 | | | | | | | | |
-| ZIY-02 | | | | | | | | |
-| ZIY-03 | | | | | | | | |
+We selected model settings, blend weight and threshold on development
+out-of-fold scores. Therefore these are development estimates, not results on
+a final untouched holdout. Fold SD is not a confidence interval. Similar
+local and leaderboard scores do not prove absence of overfitting.
+
+Our earlier least-squares experiment was numerically unstable on collinear
+features. We corrected the required implementation to form float64 normal
+equations and handle rank deficiency. We do not use the unstable historical
+result as evidence of poor least-squares performance.
+
+## Prediction and competition provenance
+
+We retrained the delivered configuration on all 328,135 labeled rows and
+produced 109,379 test predictions, including 13,390 positives. The exact CSV
+SHA-256 is:
+
+    4986920c9485b722c1b2992667dba8aa43f9f0d2122df8572229bcc412e775ce
+
+Our earlier experiment log reports AIcrowd F1 0.455. The original uploaded CSV
+was unavailable for exact comparison. We therefore distinguish that historical
+score from the verified local results and do not certify an AIcrowd score for
+the regenerated file before a new upload. The saved weights and CSV allow the
+delivered predictions to be reproduced exactly.

@@ -1,0 +1,52 @@
+{
+  "model_sha256": "45a62a02ee2285ea5cef1c5b994c977d23cc2b6b42b309c3469693a39879e536",
+  "submission_sha256": "4986920c9485b722c1b2992667dba8aa43f9f0d2122df8572229bcc412e775ce",
+  "x_test_sha256": "28a7f5f94436a33b5dceb5dd15fd72563f31ec898124e382c123d3827203503c",
+  "rows": 109379,
+  "positive_predictions": 13390,
+  "positive_fraction": 0.12241838012781246,
+  "config": {
+    "logistic_pk": {
+      "max_unique_categorical": 30,
+      "zero_flags": true,
+      "n_poly": 10,
+      "flag_dropped_max_frac": 0.99,
+      "max_nan_frac": 0.8
+    },
+    "logistic_lambda": 0.0001,
+    "logistic_pos_weight": 1.0,
+    "logistic_interactions": 25,
+    "gbdt_params": {
+      "learning_rate": 0.1,
+      "max_depth": 4,
+      "reg_lambda": 1.0,
+      "min_child_hess": 5.0,
+      "subsample": 0.5,
+      "colsample": 0.5
+    },
+    "gbdt_trees": 209,
+    "blend_weight": 0.7000000000000001,
+    "threshold": 0.225
+  },
+  "training": {
+    "rows": 328135,
+    "positive_rows": 28975,
+    "logistic_columns": 1066,
+    "logistic_training_loss": 0.21775965632210997,
+    "seconds": 850.7648696999531,
+    "seed": 42,
+    "numpy_version": "1.26.2",
+    "python_version": "3.11.9",
+    "x_train_sha256": "bfa447edece27d45b54f8f1486f6351a381885968d71c9eb1574fd1dbf0fa14a",
+    "y_train_sha256": "bc974ff01bd82827e05780d106674ee680c918fc54225384cbf4f7b279422ec1",
+    "pipeline_sha256": "715f6d57ac23aadba95ae58f09c8435f958b1a8631cfdd05ab337051d31bae68",
+    "pipeline_at_fit_sha256": "19ce36162e35fc8defa5d4ed24e7630f3d2efab75f01bc9618ea3f96a9ac6fa2",
+    "post_fit_changes": "Team wording only; Python AST excluding docstrings verified unchanged."
+  },
+  "reference_comparison": null,
+  "competition_score": {
+    "reported_f1": 0.455,
+    "source": "documentation/Results.md (team-reported historical result)",
+    "verified_for_this_csv": false
+  }
+}

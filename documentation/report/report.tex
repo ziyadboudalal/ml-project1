@@ -1,176 +1,148 @@
 \documentclass[10pt,conference,compsocconf]{IEEEtran}
-
+\usepackage{amsmath,booktabs,graphicx}
 \usepackage[hidelinks]{hyperref}
-\usepackage{graphicx}
-\usepackage{amsmath}
-\usepackage{booktabs}
-
-\graphicspath{{../figures/}}
-
+\graphicspath{{../final_figures/}}
+\input{results_summary.tex}
+\title{Combining Survey Encoding and Gradient Boosting\\for Coronary Heart Disease Classification}
+\author{Nour Chebil \qquad Ismail Moudden \qquad Ziyad Boudalal\\
+\textit{CouscousAI --- CS-433 Machine Learning, EPFL, Fall 2026}}
 \begin{document}
-\title{Predicting Coronary Heart Disease from Survey Answers\\with Regularized Logistic Regression}
-
-\author{
-  Ismail Moudden\\
-  \textit{CS-433 Machine Learning, EPFL, Switzerland}
-}
-
 \maketitle
-
 \begin{abstract}
+We predict self-reported coronary heart disease from incomplete health-survey
+answers. Our NumPy-only system combines histogram-based boosted trees with
+regularized logistic regression trained by Newton's method. A common three-fold
+evaluation compares interactions, nonlinear trees and probability
+blending. The delivered blend obtains development F1 of
+$\FinalFOne\pm\FinalStd$. We report the exact preprocessing and decision rule,
+distinguish development estimates from independent evaluation, and provide
+saved weights and a reproducible prediction script.
 \end{abstract}
+\section{Task and Data}
+The provided BRFSS dataset contains 328\,135 labeled respondents, 109\,379 test
+respondents and 321 input variables. The positive class represents a reported
+heart attack or coronary heart disease diagnosis, rather than a future clinical
+event. Only 28\,975 training examples (8.83\%) are positive: always predicting
+the negative class gives 91.17\% accuracy but F1 of zero. We therefore evaluate
+positive-class F1, $2TP/(2TP+FP+FN)$.
 
-\section{Introduction}
+Missing entries account for 44.8\% of the training matrix, and 147 variables
+are missing in more than half the rows. Survey codes also need interpretation:
+for example, \texttt{PHYSHLTH}=88 means no unhealthy days, whereas 77 and 99
+indicate nonresponses~\cite{cdc}. We use the supplied data only.
+\section{Preprocessing and Models}
+\subsection{Logistic features}
+The logistic encoder excludes constant variables, columns with over 80\%
+missing entries and eight bookkeeping fields: dates, months, year,
+\texttt{SEQNO}, \texttt{\_PSU} and \texttt{\_STSTR}.
+Column-specific rules map known nonresponses to missing,
+``none'' codes to zero and coded frequencies, height and weight to numerical
+units. Other columns use the recorded nonresponse-code heuristic.
 
-The training set has 328\,135 respondents and the test set 109\,379, each
-described by 321 answers from a telephone health survey. The label is 1 if
-the respondent was diagnosed with MICHD (heart attack or angina), and 8.8\% of
-the training labels are positive. Predicting the majority class gives 91\%
-accuracy but an F1 of 0, so all models are compared by the F1 of the positive
-class, which is also the leaderboard metric.
-
-\section{Data and Feature Engineering}
-\label{sec:features}
-
-Most columns are not measurements but answer codes. For example, general
-health (\texttt{GENHLTH}) takes values 1 (excellent) to 5 (poor), plus
-7 = ``don't know'' and 9 = ``refused''. A single weight on the raw value
-treats ``refused'' as worse than ``poor''. Many questions are also asked only
-to a subset of respondents: 147 of the 321 columns are missing in more than
-half of the rows.
-
-We build the following features. All statistics (levels, quantiles, means)
-are computed on the training rows only, inside each cross-validation fold.
-\begin{itemize}
-  \item \textbf{Dropped:} identifiers, interview dates, state, survey
-    weights, constant columns and columns with less than 1\% observed values.
-  \item \textbf{Categorical columns} ($\le 60$ distinct values): one-hot
-    encoding, with answer codes kept as their own levels. Levels seen in less
-    than 0.2\% of rows are merged into the reference level, which is dropped
-    to avoid collinearity with the bias.
-  \item \textbf{Continuous columns:} frequent answer codes (e.g.\ 7777,
-    9999) become indicators. The remaining values are clipped to their 1st and
-    99th percentiles, standardized, and expanded with a squared term
-    (polynomial basis of degree 2).
-  \item \textbf{Missing indicators} for every column with missing values.
-  \item \textbf{Interactions:} pairwise products of the 20 encoded columns
-    most correlated with the label, skipping pairs from the same question and
-    products that are almost always zero.
-\end{itemize}
-This gives about 1\,230 columns without interactions and 1\,410 with them.
-
-\section{Models}
-
-\subsection{Baselines}
-The six required methods are implemented in \texttt{implementations.py}. As
-baselines, we use ridge regression (labels in $\{-1,1\}$, $\lambda=10^{-4}$)
-and regularized logistic regression with gradient descent ($\lambda=10^{-4}$,
-$\gamma=0.15$, 300 iterations) on the raw columns, mean-imputed and
-standardized.
-
-\subsection{Regularized logistic regression with Newton's method}
-
-We minimize the mean logistic loss with an $L_2$ penalty on all weights
-except the bias $w_0$:
+Variables with at most \textbf{30 distinct observed values} are one-hot encoded;
+\texttt{\_STATE} is always categorical. Levels observed fewer than 100 times
+share an ``other'' category with missing values when present in training;
+unseen values use this category if available, otherwise the reference level.
+The most frequent level is the reference. Continuous variables are median-imputed, clipped to
+training percentiles 1 and 99, and standardized. We add distinct missingness
+flags, including flags for dropped columns with up to 99\% missingness,
+and indicators of original ``none'' codes. Finally, we standardize squares of
+the ten continuous columns most correlated with the target and pairwise
+products of the 25 most correlated encoded columns. Every statistic and
+feature selection is learned within the training fold.
+\subsection{Regularized logistic regression}
+For $y_i\in\{0,1\}$ and encoded $x_i$, we minimize
 \begin{equation}
-  L(w) = \frac{1}{n}\sum_{i=1}^{n}\left[\log\!\left(1+e^{x_i^\top w}\right)
-  - y_i\, x_i^\top w\right] + \lambda \sum_{j\ge 1} w_j^2 .
+L(w)=\frac{1}{n}\sum_i[\log(1+e^{x_i^\top w})-y_ix_i^\top w]
+       +10^{-4}\|w\|_2^2 .
 \end{equation}
-Gradient descent needs a tuned step size and many iterations with 1\,400
-columns of very different scales. Newton's method uses the Hessian
-$H = \frac{1}{n} X^\top S X + 2\lambda I$, with
-$S = \mathrm{diag}(\sigma(x_i^\top w)(1-\sigma(x_i^\top w)))$, and updates
-$w \leftarrow w - H^{-1}\nabla L(w)$. It converges in about 10 iterations.
-$X^\top S X$ is accumulated over blocks of rows so that memory stays bounded,
-and a step that increases the loss is halved. We use $\lambda=3\cdot10^{-4}$.
+The delivered implementation penalizes \emph{all} coefficients, including the
+intercept. Newton updates solve the Hessian system, with backtracking and a
+maximum of 15 iterations. The Hessian is accumulated in blocks of 20\,000
+rows. Loss calculations are numerically stable. The six required course
+methods remain available separately in \texttt{implementations.py}.
+\subsection{Boosted trees and final blend}
+Our implementation follows gradient boosting~\cite{friedman}, using first and
+second derivatives of logistic loss. Each feature is discretized into at most
+63 bins plus a missing bin; splits learn the direction of missing values.
+Trees have depth four, learning rate 0.1, leaf regularization 1 and minimum
+child Hessian sum 5. Each tree samples half the training rows and half the
+features (seed 42). Leaf updates use $-G/(H+1)$.
 
-\subsection{Decision threshold}
-With 8.8\% positives, few predicted probabilities exceed 0.5. We therefore
-choose the threshold $t$ that maximizes F1 on the out-of-fold probabilities,
-by an exact search over all distinct scores (Fig.~\ref{fig:threshold}). The
-selected threshold is $t = 0.20$.
+The final decision combines the two probabilities:
+\begin{align}
+p&=0.7p_{\mathrm{trees}}+0.3p_{\mathrm{logistic}},\notag\\
+\hat y&=\begin{cases}+1&p\ge0.225,\\-1&\text{otherwise.}\end{cases}
+\end{align}
+We refit on all labeled rows with 209 trees and the logistic encoding above.
+The experiment below reproduces the fold-wise development procedure used
+to select this configuration.
+\section{Evaluation and Results}
+\subsection{Common protocol}
+All rows in Table~\ref{tab:results} use the \emph{same three shuffled folds}
+(NumPy \texttt{RandomState}, seed 42; not stratified). Encoders and model weights
+are refitted inside each training fold. For tree early stopping, 10\% of that
+fold is held out; training stops after 50 iterations without a validation-loss
+improvement. The original retained tree counts were 183, 171 and 216; their
+mean multiplied by 1.1 gives 209 trees for the full-data refit.
 
-\begin{figure}[tbp]
-  \centering
-  \includegraphics[width=\columnwidth]{threshold}
-  \caption{Out-of-fold F1, precision and recall of our model as a
-  function of the decision threshold. F1 is 0.434 at the selected threshold
-  and 0.231 at 0.5.}
-  \label{fig:threshold}
-\end{figure}
-
-\subsection{Validation protocol}
-All models are evaluated with the same stratified 5-fold cross-validation
-(seed 2026). For each fold, the feature encoder, the selection of
-interaction columns and the weights are fitted on the four training folds
-only. One threshold is chosen on the pooled out-of-fold probabilities, and we
-report the mean and standard deviation of the F1 of the five folds at that
-threshold. Our model is refitted on all labeled data with the same
-threshold.
-
-\section{Results}
-\label{sec:results}
-
-Table~\ref{tab:ablation} compares the baselines with each step of our model.
-Encoding the features adds $+0.022$, by far the largest gain. Interactions add
-$+0.002$, which is within one standard deviation across folds. The
-cross-validated F1 of the submitted model (0.434) is close to its test F1 on
-AIcrowd (0.442, accuracy 0.873), so the validation did not overfit.
-
-\begin{table}[tbp]
-  \centering
-  \caption{F1 of the positive class (5-fold CV, mean $\pm$ std).
-  Raw: raw columns, mean-imputed and standardized.}
-  \label{tab:ablation}
-  \begin{tabular}{@{}lcc@{}}
-    \toprule
-    Model & CV F1 & Test F1 \\
-    \midrule
-    Ridge regression, raw & 0.410 $\pm$ 0.004 & \\
-    Logistic GD, raw & 0.411 $\pm$ 0.003 & \\
-    Newton, encoded features & 0.432 $\pm$ 0.003 & \\
-    \textbf{Newton, encoded + interactions} & \textbf{0.434 $\pm$ 0.004} & \textbf{0.442} \\
-    \bottomrule
-  \end{tabular}
+We pool out-of-fold (OOF) probabilities and search thresholds from 0.02 to
+0.98 in steps of 0.005. The delivered blend uses its fixed threshold 0.225.
+Reported uncertainty is the population standard deviation of the three fold
+F1 scores, not a confidence interval. Model settings, the blend weight and
+threshold were selected on these development data, so these are \emph{not}
+unbiased estimates on a final untouched holdout.
+\begin{table}[t]
+\centering
+\caption{Recomputed development results on identical folds. Newton uses the
+final encoding; products are its selected interactions.}
+\label{tab:results}
+\input{results_table.tex}
 \end{table}
-
-\subsection{What did not work}
-\begin{itemize}
-  \item \textbf{Default threshold.} At $t=0.5$ our model predicts too
-    few positives: F1 drops from 0.434 to 0.231 (Fig.~\ref{fig:threshold}).
-  \item \textbf{Changing the loss on raw features.} Ridge regression and
-    logistic regression on the same raw columns give the same F1 (0.410 vs
-    0.411): the bottleneck is the representation, not the model.
-  \item \textbf{More interactions.} 12 interaction columns give 0.433 and 20
-    give 0.434. With 30 columns (about 430 products) the design matrix reaches
-    2.2\,GB and did not fit in memory on our 8\,GB machine. Plain Newton steps
-    also diverged with a singular Hessian, because some products are almost
-    always zero (incompatible answers). Removing these products and halving
-    steps that increase the loss fixed the divergence, but we did not go
-    beyond 20 columns.
-  \item \textbf{Tuning $\lambda$.} Values from $10^{-5}$ to $10^{-3}$ all give
-    F1 between 0.433 and 0.434, within one standard deviation: with 328k rows
-    and 1\,410 columns, regularization barely matters.
-\end{itemize}
-
-\section{Final Approach}
-\label{sec:final}
-
-\section{Discussion}
-
-The largest weights of our model (Fig.~\ref{fig:weights}) match
-known risk factors. Female sex, excellent general health and the absence of
-stroke or COPD lower the predicted risk. Poor general health, kidney disease
-and having been advised by a doctor raise it. Since the weights of one-hot
-levels are relative to the reference level of the same question, they should
-be read as contrasts, not as absolute effects.
-
-\begin{figure}[tbp]
-  \centering
-  \includegraphics[width=\columnwidth]{weights}
-  \caption{The 15 largest weights of our model.}
-  \label{fig:weights}
+The raw-feature baseline uses ridge regression ($\lambda=10^{-4}$), with
+training-only mean imputation and standardization. Encoded Newton is the
+linear probabilistic baseline. Adding interactions changes F1 by
+$\InteractionsGain$; boosted trees improve over that logistic variant by
+$\TreeGain$. Blending changes F1 by $\BlendGain$ relative to trees alone.
+Small changes should be interpreted against fold variability, not as proof
+of superiority. The tree/logistic comparison also changes the representation;
+only the interaction and blend ablations isolate a single added component.
+These results do not establish a universally optimal category cutoff.
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{threshold.png}
+\caption{Final blend on pooled development OOF predictions. The dashed line
+is the delivered threshold 0.225. This curve was used for selection and is
+not an independent test-set evaluation.}
+\label{fig:threshold}
 \end{figure}
+At threshold 0.5, pooled OOF F1 is $\HalfFOne$.
+The delivered threshold gives precision \FinalPrecision\% and recall
+\FinalRecall\%, with \FinalTP\ true positives, \FinalFP\ false positives
+and \FinalFN\ false negatives. This illustrates the practical tradeoff:
+increasing recall still leaves substantial false alarms and missed cases.
+\section{Discussion and Reproducibility}
+Our main finding is that nonlinear trees improve on an encoded logistic model,
+while blending gives a smaller additional change. Survey coding remains an
+assumption: heuristic nonresponse detection may misinterpret valid categories.
+Repeated development-set selection can overestimate generalization. The data
+are self-reported and cross-sectional; the model is neither a causal analysis
+nor a validated prospective screening tool.
 
-\section{Conclusion}
+We recorded an earlier AIcrowd F1 of 0.455 in our experiment log.
+The original uploaded CSV was unavailable for comparison, so we do not claim
+that this score has been independently verified for the regenerated file.
+The repository includes the delivered weights, CSV fingerprints and the full
+training code. \texttt{python run.py} generates predictions from the saved
+weights; \texttt{python run.py --train} refits the recorded model. The validation
+script exports per-fold results and OOF predictions, from which the final
+figures and table are generated automatically. This keeps the report,
+configuration and executable submission consistent.
+\begin{thebibliography}{2}
+\bibitem{cdc} Centers for Disease Control and Prevention,
+\href{https://www.cdc.gov/brfss/annual_data/2015/pdf/codebook15_llcp.pdf}{``BRFSS 2015 Codebook,''} 2016.
+\bibitem{friedman} J. H. Friedman, ``Greedy function approximation: A gradient
+boosting machine,'' \emph{Annals of Statistics}, vol. 29, no. 5,
+pp. 1189--1232, 2001.
+\end{thebibliography}
 \end{document}

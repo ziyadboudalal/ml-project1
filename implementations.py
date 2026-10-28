@@ -99,10 +99,20 @@ def least_squares(y, tx):
         loss: Half the mean squared error at the returned weights.
     """
 
-    a = tx.T.dot(tx)
-    b = tx.T.dot(y)
-
-    w = np.linalg.solve(a, b)
+    # Form the normal equations in double precision even for float32 features.
+    # One-hot columns and missingness flags can be linearly dependent. In that
+    # case, solve the normal equations with their Moore-Penrose inverse rather
+    # than returning enormous, unstable coefficients from a near-singular solve.
+    x64 = np.asarray(tx, dtype=np.float64)
+    y64 = np.asarray(y, dtype=np.float64)
+    a = x64.T.dot(x64)
+    b = x64.T.dot(y64)
+    eigenvalues = np.linalg.eigvalsh(a)
+    cutoff = np.finfo(float).eps * max(a.shape)
+    if eigenvalues[0] <= cutoff * max(eigenvalues[-1], 1.0):
+        w = np.linalg.pinv(a, rcond=cutoff).dot(b)
+    else:
+        w = np.linalg.solve(a, b)
     loss = compute_mse(y, tx, w)
 
     return w, loss

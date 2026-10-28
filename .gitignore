@@ -223,3 +223,13 @@ __marimo__/
 # macOS metadata
 .DS_Store
 .venv/
+
+# Reproducible local caches and LaTeX build products
+/artifacts/validation/fold_*.npz
+/artifacts/validation_*/
+/submission_repeat.csv
+/submission_repeat.manifest.json
+*.aux
+*.log
+*.out
+*.synctex.gz

@@ -1,0 +1,13 @@
+# These files have byte-level fingerprints in the reproducibility manifests.
+# Preserve their original bytes on Windows and Unix checkouts.
+/final_pipeline.py -text
+/implementations.py -text
+/project_io.py -text
+/experiments/validate_final.py -text
+/artifacts/validation/*.json -text
+/submission.csv -text
+/submission.manifest.json -text
+/documentation/final_figures/provenance.json -text
+*.npz binary
+*.pdf binary
+*.png binary
