@@ -28,6 +28,26 @@ from project_io import (
 ROOT = Path(__file__).resolve().parent
 
 
+def competition_score(submission_sha256):
+    """Attach the team-confirmed AIcrowd result only to the uploaded CSV bytes."""
+    uploaded_sha256 = "4986920c9485b722c1b2992667dba8aa43f9f0d2122df8572229bcc412e775ce"
+    if submission_sha256 != uploaded_sha256:
+        return {
+            "verified_for_this_csv": False,
+            "source": "No recorded AIcrowd evaluation for this CSV SHA-256",
+        }
+    return {
+        "submission_id": 338118,
+        "submission_date": "2026-10-28",
+        "status": "graded",
+        "reported_f1": 0.455,
+        "reported_accuracy": 0.886,
+        "submission_sha256": uploaded_sha256,
+        "source": "Team-confirmed upload and supplied AIcrowd result screenshot",
+        "verified_for_this_csv": True,
+    }
+
+
 def train(data):
     """Fit our recorded configuration, with unchanged model arithmetic."""
     started = time.perf_counter()
@@ -145,9 +165,10 @@ def main():
         }
         if differences:
             raise ValueError(f"Reference differs in {differences} predictions")
+    submission_sha256 = sha256(args.output)
     manifest = {
         "model_sha256": sha256(args.model),
-        "submission_sha256": sha256(args.output),
+        "submission_sha256": submission_sha256,
         "x_test_sha256": sha256(args.data_dir / "x_test.csv"),
         "rows": len(ids),
         "positive_predictions": int((predictions == 1).sum()),
@@ -155,11 +176,7 @@ def main():
         "config": model["config"],
         "training": model["training"],
         "reference_comparison": check,
-        "competition_score": {
-            "reported_f1": 0.455,
-            "source": "documentation/Results.md (team-reported historical result)",
-            "verified_for_this_csv": False,
-        },
+        "competition_score": competition_score(submission_sha256),
     }
     args.output.with_suffix(".manifest.json").write_text(
         json.dumps(manifest, indent=2) + "\n", encoding="utf-8"

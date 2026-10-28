@@ -46,19 +46,18 @@ SHA-256 fingerprints, row counts, configuration, training provenance and the
 number of predicted positives. Model archives contain typed NumPy arrays and
 JSON metadata, and are loaded with `allow_pickle=False`.
 
-**Competition provenance:** our earlier experiment log reports AIcrowd F1 **0.455**.
-The exact uploaded CSV was not available when consolidating the repository.
-The included file is regenerated from the recorded configuration; equality to
-that historical upload and its leaderboard score are not certified. If the
-uploaded file becomes available, compare every ID and prediction with:
+**Confirmed AIcrowd result:** our delivered CSV was successfully graded as
+submission **338118** on **28 October 2026**, with **F1 = 0.455** and
+**accuracy = 0.886**. We recorded this result from the team's upload confirmation
+and AIcrowd result screenshot. The manifest associates it with the exact CSV
+SHA-256; another CSV does not inherit this score. These leaderboard metrics
+are distinct from our common-fold development F1 of **0.443602**.
+
+To compare every ID and prediction against a copy of the uploaded file:
 
 ```bash
 python run.py --reference /path/to/actually_uploaded.csv
 ```
-
-Submit the regenerated CSV to AIcrowd to obtain its own confirmed score. If it
-differs from the historical best, record that score in the report as required
-by the course instructions.
 
 ## Refit the saved model
 
@@ -147,7 +146,8 @@ python -m unittest discover -s tests -v
 ```
 
 Tests cover stable Newton optimization, nonlinear boosting, deterministic
-predictions, special response codes, CSV integrity and exact model round-trips.
+predictions, special response codes, CSV integrity, exact model round-trips
+and attribution of the AIcrowd score only to the confirmed CSV.
 The six required methods are in `implementations.py`; least squares forms
 double-precision normal equations and handles rank-deficient designs with a
 NumPy pseudoinverse of the normal matrix (never `numpy.linalg.lstsq`).
@@ -164,6 +164,7 @@ Earlier exploratory notebooks and reports are archived outside the final
 delivery bundle. `DELIVERY_FILES.txt` is the exact list of files to keep in the
 submitted repository; `REPO_CONTENTS.md` explains the layout in French.
 
-Before the deadline, confirm the score for the delivered CSV, inspect the
-two-page report, publish the final code/weights on the public team repository,
-and submit the report plus its exact commit URL on the course submission site.
+The delivered CSV's AIcrowd evaluation is complete (submission 338118).
+Before the deadline, review the two-page report and the published final
+code/weights together, then submit the report plus its exact commit URL on
+the course submission site.

@@ -14,7 +14,8 @@ answers. Our NumPy-only system combines histogram-based boosted trees with
 regularized logistic regression trained by Newton's method. A common three-fold
 evaluation compares interactions, nonlinear trees and probability
 blending. The delivered blend obtains development F1 of
-$\FinalFOne\pm\FinalStd$. We report the exact preprocessing and decision rule,
+$\FinalFOne\pm\FinalStd$ and AIcrowd F1 of 0.455 (accuracy 0.886).
+We report the exact preprocessing and decision rule,
 distinguish development estimates from independent evaluation, and provide
 saved weights and a reproducible prediction script.
 \end{abstract}
@@ -129,9 +130,9 @@ Repeated development-set selection can overestimate generalization. The data
 are self-reported and cross-sectional; the model is neither a causal analysis
 nor a validated prospective screening tool.
 
-We recorded an earlier AIcrowd F1 of 0.455 in our experiment log.
-The original uploaded CSV was unavailable for comparison, so we do not claim
-that this score has been independently verified for the regenerated file.
+We submitted the delivered CSV to AIcrowd on 28 October 2026. Submission
+338118 was successfully graded with F1 of 0.455 and accuracy of 0.886.
+These leaderboard metrics are separate from our development OOF results.
 The repository includes the delivered weights, CSV fingerprints and the full
 training code. \texttt{python run.py} generates predictions from the saved
 weights; \texttt{python run.py --train} refits the recorded model. The validation

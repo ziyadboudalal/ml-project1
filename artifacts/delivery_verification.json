@@ -3,9 +3,19 @@
   "working_directory_independence": "passed",
   "csv_byte_identity": "passed",
   "csv_sha256": "4986920c9485b722c1b2992667dba8aa43f9f0d2122df8572229bcc412e775ce",
-  "inference_seconds": 21.63213269994594,
+  "inference_seconds": 19.89795819995925,
   "local_unit_tests": "passed",
-  "unit_test_count": 8,
+  "unit_test_count": 9,
   "saved_oof_figure_regeneration": "passed",
-  "original_historical_upload_comparison": "not available"
+  "competition_score_metadata_reproduction": "passed",
+  "competition_score": {
+    "submission_id": 338118,
+    "submission_date": "2026-10-28",
+    "status": "graded",
+    "reported_f1": 0.455,
+    "reported_accuracy": 0.886,
+    "submission_sha256": "4986920c9485b722c1b2992667dba8aa43f9f0d2122df8572229bcc412e775ce",
+    "source": "Team-confirmed upload and supplied AIcrowd result screenshot",
+    "verified_for_this_csv": true
+  }
 }

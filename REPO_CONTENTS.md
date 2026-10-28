@@ -76,7 +76,8 @@ de livraison l'exclut simplement, comme elle exclut les données brutes.
 
 ## Dernière étape en ligne
 
-Soumettre le CSV livré sur AIcrowd pour confirmer son score, puis rendre le PDF
-et le lien GitHub vers le commit exact. Le score historique annoncé est 0,455 ;
-l'identité avec l'ancien fichier téléversé n'a pas pu être vérifiée. Le rapport
-et le manifeste le signalent explicitement.
+Notre CSV livré a été évalué avec succès sur AIcrowd le 28 octobre 2026 :
+soumission **338118**, **F1 = 0,455**, **accuracy = 0,886**. Le rapport et le
+manifeste intègrent ce résultat, rattaché à l'empreinte exacte du CSV.
+Il reste à relire ensemble le rendu final, puis à remettre le PDF et le lien
+GitHub vers le commit exact sur la plateforme du cours.

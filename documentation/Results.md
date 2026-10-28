@@ -60,8 +60,13 @@ SHA-256 is:
 
     4986920c9485b722c1b2992667dba8aa43f9f0d2122df8572229bcc412e775ce
 
-Our earlier experiment log reports AIcrowd F1 0.455. The original uploaded CSV
-was unavailable for exact comparison. We therefore distinguish that historical
-score from the verified local results and do not certify an AIcrowd score for
-the regenerated file before a new upload. The saved weights and CSV allow the
-delivered predictions to be reproduced exactly.
+We submitted this delivered CSV to AIcrowd on 28 October 2026. Submission
+**338118** was successfully graded with **F1 = 0.455** and **accuracy = 0.886**.
+We recorded the result from our upload confirmation and the supplied AIcrowd
+result screenshot. The manifest ties these displayed metrics to the CSV
+SHA-256 above; a different generated CSV is not assigned this score.
+
+This confirms the competition result for our delivered predictions. It does
+not establish byte equality with any earlier historical upload. The AIcrowd
+score and the development F1 of 0.443602 are separate evaluations. The saved
+weights and CSV allow the delivered predictions to be reproduced exactly.

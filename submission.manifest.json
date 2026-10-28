@@ -45,8 +45,13 @@
   },
   "reference_comparison": null,
   "competition_score": {
+    "submission_id": 338118,
+    "submission_date": "2026-10-28",
+    "status": "graded",
     "reported_f1": 0.455,
-    "source": "documentation/Results.md (team-reported historical result)",
-    "verified_for_this_csv": false
+    "reported_accuracy": 0.886,
+    "submission_sha256": "4986920c9485b722c1b2992667dba8aa43f9f0d2122df8572229bcc412e775ce",
+    "source": "Team-confirmed upload and supplied AIcrowd result screenshot",
+    "verified_for_this_csv": true
   }
 }

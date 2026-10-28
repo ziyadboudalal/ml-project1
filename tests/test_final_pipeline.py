@@ -15,11 +15,23 @@ from project_io import (
     validate_submission,
 )
 from helpers import create_csv_submission
-from run import predict
+from run import competition_score, predict
 from implementations import least_squares
 
 
 class FinalPipelineTests(unittest.TestCase):
+    def test_competition_score_applies_only_to_the_confirmed_csv(self):
+        uploaded = "4986920c9485b722c1b2992667dba8aa43f9f0d2122df8572229bcc412e775ce"
+        score = competition_score(uploaded)
+        self.assertTrue(score["verified_for_this_csv"])
+        self.assertEqual(score["submission_id"], 338118)
+        self.assertEqual(score["reported_f1"], 0.455)
+        self.assertEqual(score["reported_accuracy"], 0.886)
+        changed = competition_score("0" * 64)
+        self.assertFalse(changed["verified_for_this_csv"])
+        self.assertNotIn("reported_f1", changed)
+        self.assertNotIn("reported_accuracy", changed)
+
     def test_least_squares_handles_collinear_float32_features(self):
         col = np.linspace(-1, 1, 100, dtype=np.float32)
         x = np.column_stack([np.ones(100, dtype=np.float32), col, col])
