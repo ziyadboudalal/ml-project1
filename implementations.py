@@ -31,6 +31,7 @@ def compute_logistic_gradient(y, tx, w):
 
     return tx.T.dot(probabilities - y) / len(y)
 
+
 def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
     """Linear regression using gradient descent.
 
@@ -55,6 +56,7 @@ def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
 
     return w, loss
 
+
 def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
     """Linear regression using stochastic gradient descent
 
@@ -74,8 +76,8 @@ def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
 
     for _ in range(max_iters):
         index = np.random.randint(N)
-        y_batch = y[index:index + 1]
-        tx_batch = tx[index:index + 1]
+        y_batch = y[index : index + 1]
+        tx_batch = tx[index : index + 1]
 
         gradient = compute_mse_gradient(y_batch, tx_batch, w)
         w = w - gamma * gradient
@@ -147,7 +149,7 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
 
     for _ in range(max_iters):
         gradient = compute_logistic_gradient(y, tx, w)
-        w = w-gamma * gradient
+        w = w - gamma * gradient
 
     loss = compute_logistic_loss(y, tx, w)
 
