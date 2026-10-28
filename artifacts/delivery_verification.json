@@ -1,9 +1,10 @@
 {
+  "delivered_file_count": 31,
   "clean_directory_inference": "passed",
   "working_directory_independence": "passed",
   "csv_byte_identity": "passed",
   "csv_sha256": "4986920c9485b722c1b2992667dba8aa43f9f0d2122df8572229bcc412e775ce",
-  "inference_seconds": 19.89795819995925,
+  "inference_seconds": 27.479485800024122,
   "local_unit_tests": "passed",
   "unit_test_count": 9,
   "saved_oof_figure_regeneration": "passed",

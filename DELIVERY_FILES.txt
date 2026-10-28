@@ -19,6 +19,7 @@ artifacts/validation/oof_predictions.npz
 experiments/validate_final.py
 tests/test_final_pipeline.py
 documentation/Results.md
+documentation/SUBMISSION.md
 documentation/final_figures.py
 documentation/final_figures/threshold.png
 documentation/final_figures/model_comparison.png

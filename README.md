@@ -2,6 +2,15 @@
 
 **Nour Chebil, Ismail Moudden and Ziyad Boudalal.**
 
+**Final delivery branch: `couscousAI-final`.**
+
+| Start here | Contents |
+|---|---|
+| [Two-page report](documentation/report/report.pdf) | Methods, common-fold comparisons, limitations and AIcrowd result |
+| [Requirements and hand-in](documentation/SUBMISSION.md) | Where each assignment requirement is addressed; final submission steps |
+| [Experiment results](documentation/Results.md) | Detailed comparisons and their interpretation |
+| [Repository contents (FR)](REPO_CONTENTS.md) | Exact files to keep and the role of each directory |
+
 The delivered system is a NumPy-only blend of histogram gradient-boosted trees
 and Newton logistic regression. Its single configuration is `CONFIG` in
 `final_pipeline.py`. The final report, figures and common-fold validation use
@@ -9,16 +18,32 @@ that configuration: **30-category cutoff, 3 shuffled folds, seed 42**.
 
 ## Install and data
 
-Python 3.9+ is supported; the delivered weights were trained with Python 3.11
-and NumPy 1.26.2. Install the runtime dependencies:
+Clone the delivery branch explicitly:
+
+```bash
+git clone --branch couscousAI-final https://github.com/ziyadboudalal/ml-project1.git
+cd ml-project1
+```
+
+The validated environment is **Python 3.11.9, NumPy 1.26.2 and Matplotlib 3.8.2**.
+The code targets Python 3.9+, but the recorded execution used Python 3.11.
+Install the pinned dependencies, preferably in a virtual environment:
 
 ```bash
 python -m pip install -r requirements.txt
 ```
 
-Download the course data from
-https://www.aicrowd.com/challenges/epfl-machine-learning-project-1 and place
-`x_train.csv`, `y_train.csv`, and `x_test.csv` in `dataset/`. Raw survey CSVs are not committed.
+Download the data from the
+[course competition](https://www.aicrowd.com/challenges/epfl-machine-learning-project-1)
+and keep their original filenames:
+
+```text
+dataset/                  # local only, excluded from Git
+    x_train.csv
+    y_train.csv
+    x_test.csv
+```
+
 The implementation uses only the Python standard library and NumPy; Matplotlib
 is used only for figures. No external ML libraries, implementations or datasets
 are used by the prediction pipeline.
@@ -56,8 +81,13 @@ are distinct from our common-fold development F1 of **0.443602**.
 To compare every ID and prediction against a copy of the uploaded file:
 
 ```bash
-python run.py --reference /path/to/actually_uploaded.csv
+python run.py --output artifacts/reproduction/submission.csv --reference submission.csv
 ```
+
+This writes a separate output and records the number of different predictions
+in its manifest (expected: **0**). The delivered CSV has **109,379 rows** and
+**13,390 positives**.
+Its SHA-256 is recorded in [the manifest](submission.manifest.json).
 
 ## Refit the saved model
 
@@ -127,7 +157,8 @@ single common-fold experiment above.
 
 ## Report
 
-The team report is `documentation/report/report.pdf`; LaTeX source is adjacent.
+The [team report](documentation/report/report.pdf) is two pages, including
+references, with [LaTeX source](documentation/report/report.tex) adjacent.
 To build it after generating the figures:
 
 ```bash
@@ -152,19 +183,20 @@ The six required methods are in `implementations.py`; least squares forms
 double-precision normal equations and handles rank-deficient designs with a
 NumPy pseudoinverse of the normal matrix (never `numpy.linalg.lstsq`).
 
-Run the course's separate public tests against this repository before handing
-in. Their GitHub-link check must use the public URL of the submitted exact
-commit, of the form `https://github.com/OWNER/REPO/tree/FULL_COMMIT_SHA`.
+The [course public tests](https://github.com/epfml/ML_course/tree/main/projects/project1/grading_tests)
+are kept outside this repository. Instructions for running them against the
+exact published commit are in [the hand-in guide](documentation/SUBMISSION.md#verification).
 
 ## Experiment history and hand-in
 
-`documentation/Results.md` records our verified common-fold comparison and its
+[Our results](documentation/Results.md) record the verified common-fold comparison and its
 limitations. We present the work collectively under the three team authors.
 Earlier exploratory notebooks and reports are archived outside the final
-delivery bundle. `DELIVERY_FILES.txt` is the exact list of files to keep in the
-submitted repository; `REPO_CONTENTS.md` explains the layout in French.
+delivery branch. [DELIVERY_FILES.txt](DELIVERY_FILES.txt) is the exact list of
+files to keep; [REPO_CONTENTS.md](REPO_CONTENTS.md) explains the layout in French.
 
 The delivered CSV's AIcrowd evaluation is complete (submission 338118).
-Before the deadline, review the two-page report and the published final
-code/weights together, then submit the report plus its exact commit URL on
-the course submission site.
+Review the two-page report and the published final code/weights together,
+then follow [the final hand-in steps](documentation/SUBMISSION.md#final-hand-in).
+The course submission consists of the PDF and a GitHub link to the exact
+commit. The local ZIP is a convenience copy of the repository files.

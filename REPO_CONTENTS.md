@@ -1,7 +1,17 @@
 # Contenu exact du dépôt final CouscousAI
 
-La liste exhaustive est `DELIVERY_FILES.txt` (30 fichiers). Le dossier prêt à
-remettre et l'archive de livraison contiennent exactement ces fichiers.
+La branche à relire et à remettre est **`couscousAI-final`**. Garder tous les
+fichiers de [DELIVERY_FILES.txt](DELIVERY_FILES.txt), soit **31 fichiers**.
+Le dossier de livraison et son archive contiennent cette même liste.
+Le code nécessaire à la correction reste à la racine du dépôt.
+
+| Emplacement | Rôle |
+|---|---|
+| Racine | README, six méthodes imposées, pipeline, exécution et soumission |
+| `artifacts/` | Poids entraînés, validation sauvegardée et preuves de reproduction |
+| `experiments/` | Script pour relancer les comparaisons sur les mêmes folds |
+| `tests/` | Tests de notre pipeline et de l'intégrité des prédictions |
+| `documentation/` | Résultats, figures, consignes de remise et rapport LaTeX/PDF |
 
 ```text
 .
@@ -31,6 +41,7 @@ remettre et l'archive de livraison contiennent exactement ces fichiers.
 │   └── test_final_pipeline.py
 └── documentation/
     ├── Results.md
+    ├── SUBMISSION.md
     ├── final_figures.py
     ├── final_figures/
     │   ├── threshold.png
@@ -56,20 +67,15 @@ remettre et l'archive de livraison contiennent exactement ces fichiers.
 - Le test commun vérifie notre pipeline final. Les manifestes enregistrent les
   empreintes des fichiers et les vérifications effectuées.
 
-## À garder seulement en local ou dans vos archives
+## Fichiers locaux exclus de la remise
 
-- `dataset/` : nécessaire pour exécuter les commandes, mais exclu de Git.
-- `submissions/` : anciennes variantes et notebooks, déjà consolidés dans les
-  scripts finaux. Garder une copie d'archive avant tout nettoyage.
-- `documentation/figures.py`, `documentation/figures/` et
-  `documentation/ziyad_documentation/` : anciennes analyses avec d'autres
-  protocoles, hors du rendu final.
-- `tests/test_ismail.py` : tests de l'ancienne variante, à archiver avec elle.
-- `documentation/project1_description.pdf` : consignes, pas un livrable.
-- `documentation/report/IEEEtran.bst` : inutile ici, car la bibliographie est
-  directement incluse dans le source LaTeX.
-- Les fichiers `fold_*.npz`, `__pycache__/`, `.pytest_cache/`, `.aux`, `.log`,
-  `.out`, les outils temporaires et les dossiers de vérification.
+Les données `dataset/`, l'environnement Python `.venv/`, les caches de folds,
+les sorties de reproduction dans `artifacts/reproduction/` et les fichiers
+temporaires LaTeX sont ignorés par Git. Ils ne font pas partie des 31 fichiers.
+
+Les anciennes variantes individuelles et leurs notebooks restent consultables
+dans l'historique Git. Leur code utile a été consolidé dans le pipeline commun ;
+la branche finale contient une seule version de référence.
 
 Ne supprimez pas le dossier interne `.git` de votre dépôt de travail. L'archive
 de livraison l'exclut simplement, comme elle exclut les données brutes.
@@ -80,4 +86,6 @@ Notre CSV livré a été évalué avec succès sur AIcrowd le 28 octobre 2026 :
 soumission **338118**, **F1 = 0,455**, **accuracy = 0,886**. Le rapport et le
 manifeste intègrent ce résultat, rattaché à l'empreinte exacte du CSV.
 Il reste à relire ensemble le rendu final, puis à remettre le PDF et le lien
-GitHub vers le commit exact sur la plateforme du cours.
+GitHub vers le commit exact sur la plateforme du cours. Les étapes et la
+correspondance avec l'énoncé sont dans
+[documentation/SUBMISSION.md](documentation/SUBMISSION.md).
