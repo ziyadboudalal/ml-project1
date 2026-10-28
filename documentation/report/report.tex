@@ -1,0 +1,176 @@
+\documentclass[10pt,conference,compsocconf]{IEEEtran}
+
+\usepackage[hidelinks]{hyperref}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{booktabs}
+
+\graphicspath{{../figures/}}
+
+\begin{document}
+\title{Predicting Coronary Heart Disease from Survey Answers\\with Regularized Logistic Regression}
+
+\author{
+  Ismail Moudden\\
+  \textit{CS-433 Machine Learning, EPFL, Switzerland}
+}
+
+\maketitle
+
+\begin{abstract}
+\end{abstract}
+
+\section{Introduction}
+
+The training set has 328\,135 respondents and the test set 109\,379, each
+described by 321 answers from a telephone health survey. The label is 1 if
+the respondent was diagnosed with MICHD (heart attack or angina), and 8.8\% of
+the training labels are positive. Predicting the majority class gives 91\%
+accuracy but an F1 of 0, so all models are compared by the F1 of the positive
+class, which is also the leaderboard metric.
+
+\section{Data and Feature Engineering}
+\label{sec:features}
+
+Most columns are not measurements but answer codes. For example, general
+health (\texttt{GENHLTH}) takes values 1 (excellent) to 5 (poor), plus
+7 = ``don't know'' and 9 = ``refused''. A single weight on the raw value
+treats ``refused'' as worse than ``poor''. Many questions are also asked only
+to a subset of respondents: 147 of the 321 columns are missing in more than
+half of the rows.
+
+We build the following features. All statistics (levels, quantiles, means)
+are computed on the training rows only, inside each cross-validation fold.
+\begin{itemize}
+  \item \textbf{Dropped:} identifiers, interview dates, state, survey
+    weights, constant columns and columns with less than 1\% observed values.
+  \item \textbf{Categorical columns} ($\le 60$ distinct values): one-hot
+    encoding, with answer codes kept as their own levels. Levels seen in less
+    than 0.2\% of rows are merged into the reference level, which is dropped
+    to avoid collinearity with the bias.
+  \item \textbf{Continuous columns:} frequent answer codes (e.g.\ 7777,
+    9999) become indicators. The remaining values are clipped to their 1st and
+    99th percentiles, standardized, and expanded with a squared term
+    (polynomial basis of degree 2).
+  \item \textbf{Missing indicators} for every column with missing values.
+  \item \textbf{Interactions:} pairwise products of the 20 encoded columns
+    most correlated with the label, skipping pairs from the same question and
+    products that are almost always zero.
+\end{itemize}
+This gives about 1\,230 columns without interactions and 1\,410 with them.
+
+\section{Models}
+
+\subsection{Baselines}
+The six required methods are implemented in \texttt{implementations.py}. As
+baselines, we use ridge regression (labels in $\{-1,1\}$, $\lambda=10^{-4}$)
+and regularized logistic regression with gradient descent ($\lambda=10^{-4}$,
+$\gamma=0.15$, 300 iterations) on the raw columns, mean-imputed and
+standardized.
+
+\subsection{Regularized logistic regression with Newton's method}
+
+We minimize the mean logistic loss with an $L_2$ penalty on all weights
+except the bias $w_0$:
+\begin{equation}
+  L(w) = \frac{1}{n}\sum_{i=1}^{n}\left[\log\!\left(1+e^{x_i^\top w}\right)
+  - y_i\, x_i^\top w\right] + \lambda \sum_{j\ge 1} w_j^2 .
+\end{equation}
+Gradient descent needs a tuned step size and many iterations with 1\,400
+columns of very different scales. Newton's method uses the Hessian
+$H = \frac{1}{n} X^\top S X + 2\lambda I$, with
+$S = \mathrm{diag}(\sigma(x_i^\top w)(1-\sigma(x_i^\top w)))$, and updates
+$w \leftarrow w - H^{-1}\nabla L(w)$. It converges in about 10 iterations.
+$X^\top S X$ is accumulated over blocks of rows so that memory stays bounded,
+and a step that increases the loss is halved. We use $\lambda=3\cdot10^{-4}$.
+
+\subsection{Decision threshold}
+With 8.8\% positives, few predicted probabilities exceed 0.5. We therefore
+choose the threshold $t$ that maximizes F1 on the out-of-fold probabilities,
+by an exact search over all distinct scores (Fig.~\ref{fig:threshold}). The
+selected threshold is $t = 0.20$.
+
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=\columnwidth]{threshold}
+  \caption{Out-of-fold F1, precision and recall of our model as a
+  function of the decision threshold. F1 is 0.434 at the selected threshold
+  and 0.231 at 0.5.}
+  \label{fig:threshold}
+\end{figure}
+
+\subsection{Validation protocol}
+All models are evaluated with the same stratified 5-fold cross-validation
+(seed 2026). For each fold, the feature encoder, the selection of
+interaction columns and the weights are fitted on the four training folds
+only. One threshold is chosen on the pooled out-of-fold probabilities, and we
+report the mean and standard deviation of the F1 of the five folds at that
+threshold. Our model is refitted on all labeled data with the same
+threshold.
+
+\section{Results}
+\label{sec:results}
+
+Table~\ref{tab:ablation} compares the baselines with each step of our model.
+Encoding the features adds $+0.022$, by far the largest gain. Interactions add
+$+0.002$, which is within one standard deviation across folds. The
+cross-validated F1 of the submitted model (0.434) is close to its test F1 on
+AIcrowd (0.442, accuracy 0.873), so the validation did not overfit.
+
+\begin{table}[tbp]
+  \centering
+  \caption{F1 of the positive class (5-fold CV, mean $\pm$ std).
+  Raw: raw columns, mean-imputed and standardized.}
+  \label{tab:ablation}
+  \begin{tabular}{@{}lcc@{}}
+    \toprule
+    Model & CV F1 & Test F1 \\
+    \midrule
+    Ridge regression, raw & 0.410 $\pm$ 0.004 & \\
+    Logistic GD, raw & 0.411 $\pm$ 0.003 & \\
+    Newton, encoded features & 0.432 $\pm$ 0.003 & \\
+    \textbf{Newton, encoded + interactions} & \textbf{0.434 $\pm$ 0.004} & \textbf{0.442} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{What did not work}
+\begin{itemize}
+  \item \textbf{Default threshold.} At $t=0.5$ our model predicts too
+    few positives: F1 drops from 0.434 to 0.231 (Fig.~\ref{fig:threshold}).
+  \item \textbf{Changing the loss on raw features.} Ridge regression and
+    logistic regression on the same raw columns give the same F1 (0.410 vs
+    0.411): the bottleneck is the representation, not the model.
+  \item \textbf{More interactions.} 12 interaction columns give 0.433 and 20
+    give 0.434. With 30 columns (about 430 products) the design matrix reaches
+    2.2\,GB and did not fit in memory on our 8\,GB machine. Plain Newton steps
+    also diverged with a singular Hessian, because some products are almost
+    always zero (incompatible answers). Removing these products and halving
+    steps that increase the loss fixed the divergence, but we did not go
+    beyond 20 columns.
+  \item \textbf{Tuning $\lambda$.} Values from $10^{-5}$ to $10^{-3}$ all give
+    F1 between 0.433 and 0.434, within one standard deviation: with 328k rows
+    and 1\,410 columns, regularization barely matters.
+\end{itemize}
+
+\section{Final Approach}
+\label{sec:final}
+
+\section{Discussion}
+
+The largest weights of our model (Fig.~\ref{fig:weights}) match
+known risk factors. Female sex, excellent general health and the absence of
+stroke or COPD lower the predicted risk. Poor general health, kidney disease
+and having been advised by a doctor raise it. Since the weights of one-hot
+levels are relative to the reference level of the same question, they should
+be read as contrasts, not as absolute effects.
+
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=\columnwidth]{weights}
+  \caption{The 15 largest weights of our model.}
+  \label{fig:weights}
+\end{figure}
+
+\section{Conclusion}
+\end{document}
