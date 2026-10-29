@@ -1,11 +1,10 @@
 # CouscousAI - assignment requirements and hand-in
 
 **Team:** Nour Chebil, Ismail Moudden and Ziyad Boudalal.
-**Delivery branch:** `couscousAI-final`.
+**Final version:** `main`.
 
-This guide maps the supplied Fall 2026 Project 1 description (Steps 2-4 and
-the report guidelines) to our final repository. The project description is
-the source of the requirements; this guide describes our implementation.
+This guide maps the supplied Fall 2026 Project 1 description to our final repository. 
+The project description is the source of the requirements; this guide describes our implementation.
 
 ## Requirements and evidence
 
@@ -18,9 +17,9 @@ the source of the requirements; this guide describes our implementation.
 | `run.py` reproduces the competition predictions exactly | [run.py](../run.py) loads [saved weights](../artifacts/final_model.npz); the CSV hash and reproduction checks are recorded in [the manifest](../submission.manifest.json) and [delivery verification](../artifacts/delivery_verification.json) |
 | Training code supplied if inference uses saved weights | `python run.py --train`; training orchestration is in `run.py` and algorithms in [final_pipeline.py](../final_pipeline.py) |
 | Correct test IDs, CSV format and supplied CSV-writing helper | [project_io.py](../project_io.py) validates IDs/order and labels; `run.py` uses `create_csv_submission` from [helpers.py](../helpers.py) |
-| Document preparation, feature generation and local validation | [README](../README.md), [results](Results.md), [validation script](../experiments/validate_final.py) and [protocol](../artifacts/validation/protocol.json) |
-| Local evaluation, baselines and evidence for improvements | Ridge, Newton, Newton with interactions, boosted trees and blend compared on the same three folds; the report explains the development-selection limitation |
-| At most two report pages, no appendix; LaTeX source | [Report PDF](report/report.pdf): two pages including references; [LaTeX source](report/report.tex), class, generated tables and figures are included |
+| Document preparation, feature generation and local validation | [README](../README.md), [analysis notebook](../experiments/project1_notebook.ipynb), [results](Results.md), [validation script](../experiments/validate_final.py) and [protocol](../artifacts/validation/protocol.json) |
+| Local evaluation, baselines and evidence for improvements | The six methods from class (report Table I), then ridge, Newton, Newton with interactions, boosted trees and blend on the same three folds (Table II), and ablation studies (Table III); the report explains the development-selection limitation |
+| At most two report pages, no appendix; LaTeX source | [Report PDF](report_merged/report.pdf): two pages plus a page of references; [LaTeX source](report_merged/report.tex), class, tables and figures are included |
 | Report the performance of the delivered submission | AIcrowd submission **338118**, 28 October 2026: **F1 0.455**, **accuracy 0.886**, included in the report |
 | Final submission contains the report and a GitHub code link | Follow the final hand-in steps below; use a link to the exact reviewed commit |
 
@@ -89,19 +88,15 @@ The supplied statement gives **Thursday 29 October 2026 at 16:00** as the
 deadline and [mlcourse.epfl.ch](http://mlcourse.epfl.ch) as the submission site.
 AIcrowd evaluation and the final report/code hand-in are separate steps.
 
-1. Review the final branch together, including the report, authors, results and
-   reproduction commands. Commit and push any agreed corrections to
-   `couscousAI-final`.
+1. Review the final version together, including the report, authors, results and
+   reproduction commands. Commit and push any agreed corrections, then bring
+   `main` up to date with `couscousAI-final`.
 2. In that branch, run `git status` to ensure all intended changes are committed
    and pushed. Run `git rev-parse HEAD` to obtain the exact commit hash.
 3. Form the permanent code URL
    `https://github.com/ziyadboudalal/ml-project1/tree/FULL_COMMIT_SHA` using that
    hash. Verify that this URL shows the reviewed files. On GitHub, pressing `y`
    on the branch page also produces a commit permalink.
-4. Submit [report/report.pdf](report/report.pdf) from that same commit and its
+4. Submit [report_merged/report.pdf](report_merged/report.pdf) from that same commit and its
    permanent code URL on the course submission site. Save the submission
    confirmation.
-
-The file list is [DELIVERY_FILES.txt](../DELIVERY_FILES.txt), explained in
-[REPO_CONTENTS.md](../REPO_CONTENTS.md). The local ZIP contains the same files
-for convenience; the requested code deliverable is the public GitHub link.

@@ -2,14 +2,12 @@
 
 **Nour Chebil, Ismail Moudden and Ziyad Boudalal.**
 
-**Final delivery branch: `couscousAI-final`.**
-
 | Start here | Contents |
 |---|---|
-| [Two-page report](documentation/report/report.pdf) | Methods, common-fold comparisons, limitations and AIcrowd result |
-| [Requirements and hand-in](documentation/SUBMISSION.md) | Where each assignment requirement is addressed; final submission steps |
+| [Two-page report](documentation/report_merged/report.pdf) | Methods, baselines, common-fold comparisons, ablation study and AIcrowd result |
+| [Analysis notebook](experiments/project1_notebook.ipynb) | The whole project with its outputs: exploration, preprocessing, the six methods, cross-validation, improvements, ablations |
+| [Requirements and hand-in](documentation/SUBMISSION.md) | Where each assignment requirement is addressed |
 | [Experiment results](documentation/Results.md) | Detailed comparisons and their interpretation |
-| [Repository contents (FR)](REPO_CONTENTS.md) | Exact files to keep and the role of each directory |
 
 The delivered system is a NumPy-only blend of histogram gradient-boosted trees
 and Newton logistic regression. Its single configuration is `CONFIG` in
@@ -18,10 +16,8 @@ that configuration: **30-category cutoff, 3 shuffled folds, seed 42**.
 
 ## Install and data
 
-Clone the delivery branch explicitly:
-
 ```bash
-git clone --branch couscousAI-final https://github.com/ziyadboudalal/ml-project1.git
+git clone https://github.com/ziyadboudalal/ml-project1.git
 cd ml-project1
 ```
 
@@ -117,6 +113,15 @@ The delivered settings are:
 The code retains the notebook's full floating-point blend weight
 `0.7000000000000001`. All stochastic operations use the recorded seed 42.
 
+## Full analysis notebook
+
+[`experiments/project1_notebook.ipynb`](experiments/project1_notebook.ipynb) contains the whole
+project with its outputs: data exploration, special codes and preprocessing, the six methods from
+class (Table I of the report), the cross-validation of the regularization and of the class weights
+(Fig. 1), the improvements, both ablation studies (Table III), the gradient boosting and the blend.
+It uses the same three folds (seed 42) as `experiments/validate_final.py`, and both give identical
+results. A full run takes several hours.
+
 ## Reproduce validation and figures
 
 ```bash
@@ -144,7 +149,7 @@ the experiment. The scripts produce:
 - `artifacts/validation/protocol.json`: configuration and data/source hashes.
 - `artifacts/validation/oof_predictions.npz`: saved OOF predictions, IDs and labels for figures (no raw survey features).
 - `documentation/final_figures/`: figures with a provenance record.
-- `documentation/report/results_*.tex`: generated numbers and comparison table.
+- `documentation/report/results_*.tex`: generated numbers and comparison table (used by the first version of the report, in `documentation/report/`).
 
 Saved OOF predictions are included, so `python documentation/final_figures.py`
 can regenerate the figures immediately without rerunning training. Source and
@@ -157,14 +162,15 @@ single common-fold experiment above.
 
 ## Report
 
-The [team report](documentation/report/report.pdf) is two pages, including
-references, with [LaTeX source](documentation/report/report.tex) adjacent.
-To build it after generating the figures:
+The [team report](documentation/report_merged/report.pdf) is two pages plus a page of
+references, with its [LaTeX source](documentation/report_merged/report.tex) adjacent. Its tables
+and two of its figures are regenerated from the recorded results by
+`documentation/report_merged/make_report_assets.py`. To build it:
 
 ```bash
-cd documentation/report
-pdflatex -interaction=nonstopmode -halt-on-error report.tex
-pdflatex -interaction=nonstopmode -halt-on-error report.tex
+python documentation/report_merged/make_report_assets.py --out documentation/report_merged
+cd documentation/report_merged
+pdflatex report.tex && bibtex report && pdflatex report.tex && pdflatex report.tex
 ```
 
 Tectonic is an alternative LaTeX compiler. LaTeX tooling is only for building
@@ -191,12 +197,8 @@ exact published commit are in [the hand-in guide](documentation/SUBMISSION.md#ve
 
 [Our results](documentation/Results.md) record the verified common-fold comparison and its
 limitations. We present the work collectively under the three team authors.
-Earlier exploratory notebooks and reports are archived outside the final
-delivery branch. [DELIVERY_FILES.txt](DELIVERY_FILES.txt) is the exact list of
-files to keep; [REPO_CONTENTS.md](REPO_CONTENTS.md) explains the layout in French.
+Earlier individual experiments remain available in the Git history; their useful code was
+consolidated into the final pipeline and the analysis notebook.
 
-The delivered CSV's AIcrowd evaluation is complete (submission 338118).
-Review the two-page report and the published final code/weights together,
-then follow [the final hand-in steps](documentation/SUBMISSION.md#final-hand-in).
-The course submission consists of the PDF and a GitHub link to the exact
-commit. The local ZIP is a convenience copy of the repository files.
+The course submission consists of the report PDF and a GitHub link to the exact commit
+(see [the final hand-in steps](documentation/SUBMISSION.md#final-hand-in)).
