@@ -4,7 +4,7 @@
 
 | Start here | Contents |
 |---|---|
-| [Two-page report](documentation/report_merged/report.pdf) | Methods, baselines, common-fold comparisons, ablation study and AIcrowd result |
+| [Two-page report](documentation/report/report.pdf) | Methods, baselines, common-fold comparisons, ablation study and AIcrowd result |
 | [Analysis notebook](experiments/project1_notebook.ipynb) | The whole project with its outputs: exploration, preprocessing, the six methods, cross-validation, improvements, ablations |
 | [Requirements and hand-in](documentation/SUBMISSION.md) | Where each assignment requirement is addressed |
 | [Experiment results](documentation/Results.md) | Detailed comparisons and their interpretation |
@@ -149,7 +149,7 @@ the experiment. The scripts produce:
 - `artifacts/validation/protocol.json`: configuration and data/source hashes.
 - `artifacts/validation/oof_predictions.npz`: saved OOF predictions, IDs and labels for figures (no raw survey features).
 - `documentation/final_figures/`: figures with a provenance record.
-- `documentation/report/results_*.tex`: generated numbers and comparison table (used by the first version of the report, in `documentation/report/`).
+- `documentation/report/results_*.tex`: generated numbers and comparison table (written next to the report by this script; the report itself uses `tables/`).
 
 Saved OOF predictions are included, so `python documentation/final_figures.py`
 can regenerate the figures immediately without rerunning training. Source and
@@ -162,14 +162,14 @@ single common-fold experiment above.
 
 ## Report
 
-The [team report](documentation/report_merged/report.pdf) is two pages plus a page of
-references, with its [LaTeX source](documentation/report_merged/report.tex) adjacent. Its tables
+The [team report](documentation/report/report.pdf) is two pages plus a page of
+references, with its [LaTeX source](documentation/report/report.tex) adjacent. Its tables
 and two of its figures are regenerated from the recorded results by
-`documentation/report_merged/make_report_assets.py`. To build it:
+`documentation/report/make_report_assets.py`. To build it:
 
 ```bash
-python documentation/report_merged/make_report_assets.py --out documentation/report_merged
-cd documentation/report_merged
+python documentation/report/make_report_assets.py --out documentation/report
+cd documentation/report
 pdflatex report.tex && bibtex report && pdflatex report.tex && pdflatex report.tex
 ```
 

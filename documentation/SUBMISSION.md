@@ -19,7 +19,7 @@ The project description is the source of the requirements; this guide describes 
 | Correct test IDs, CSV format and supplied CSV-writing helper | [project_io.py](../project_io.py) validates IDs/order and labels; `run.py` uses `create_csv_submission` from [helpers.py](../helpers.py) |
 | Document preparation, feature generation and local validation | [README](../README.md), [analysis notebook](../experiments/project1_notebook.ipynb), [results](Results.md), [validation script](../experiments/validate_final.py) and [protocol](../artifacts/validation/protocol.json) |
 | Local evaluation, baselines and evidence for improvements | The six methods from class (report Table I), then ridge, Newton, Newton with interactions, boosted trees and blend on the same three folds (Table II), and ablation studies (Table III); the report explains the development-selection limitation |
-| At most two report pages, no appendix; LaTeX source | [Report PDF](report_merged/report.pdf): two pages plus a page of references; [LaTeX source](report_merged/report.tex), class, tables and figures are included |
+| At most two report pages, no appendix; LaTeX source | [Report PDF](report/report.pdf): two pages plus a page of references; [LaTeX source](report/report.tex), class, tables and figures are included |
 | Report the performance of the delivered submission | AIcrowd submission **338118**, 28 October 2026: **F1 0.455**, **accuracy 0.886**, included in the report |
 | Final submission contains the report and a GitHub code link | Follow the final hand-in steps below; use a link to the exact reviewed commit |
 
@@ -97,6 +97,6 @@ AIcrowd evaluation and the final report/code hand-in are separate steps.
    `https://github.com/ziyadboudalal/ml-project1/tree/FULL_COMMIT_SHA` using that
    hash. Verify that this URL shows the reviewed files. On GitHub, pressing `y`
    on the branch page also produces a commit permalink.
-4. Submit [report_merged/report.pdf](report_merged/report.pdf) from that same commit and its
+4. Submit [report/report.pdf](report/report.pdf) from that same commit and its
    permanent code URL on the course submission site. Save the submission
    confirmation.
